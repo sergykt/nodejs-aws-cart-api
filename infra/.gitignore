@@ -1,0 +1,17 @@
+*.js
+!jest.config.js
+*.d.ts
+node_modules
+
+# CDK asset staging directory
+.cdk.staging
+cdk.out
+outputs.json
+
+# CDK context file (contains environment-specific information, should not be committed)
+cdk.context.json
+
+# env files (if you use dotenv for local development)
+.env
+.env.local
+.env.*.local

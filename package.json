@@ -18,7 +18,12 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "cdk:build": "cd infra && npm run build",
+    "cdk:build:deploy": "npm run cdk:build && npm run cdk:deploy",
+    "cdk:deploy": "cd infra && npx cdk deploy --outputs-file outputs.json --require-approval never --all",
+    "cdk:destroy": "cd infra && npx cdk destroy --force --all",
+    "cdk:synth": "cd infra && npx cdk synth > MyStack.template.yml"
   },
   "dependencies": {
     "@nestjs/common": "^10.0.3",
@@ -33,7 +38,8 @@
     "passport-jwt": "^4.0.1",
     "passport-local": "^1.0.0",
     "reflect-metadata": "^0.1.13",
-    "rxjs": "^7.8.1"
+    "rxjs": "^7.8.1",
+    "serverless-http": "^4.0.0"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.0.3",
@@ -48,6 +54,7 @@
     "@types/supertest": "^2.0.12",
     "@typescript-eslint/eslint-plugin": "5.60.0",
     "@typescript-eslint/parser": "5.60.0",
+    "esbuild": "^0.28.0",
     "eslint": "8.43.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-prettier": "^5.0.0",
