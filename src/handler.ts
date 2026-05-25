@@ -1,11 +1,11 @@
 import { NestFactory } from '@nestjs/core';
 import { ExpressAdapter } from '@nestjs/platform-express';
-import express from 'express';
 import helmet from 'helmet';
-import serverless from 'serverless-http';
+import * as express from 'express';
+import * as serverless from 'serverless-http';
 import { AppModule } from './app.module';
 
-let server: ReturnType<typeof serverless>;
+let server: any;
 
 async function bootstrap() {
   const expressApp = express();

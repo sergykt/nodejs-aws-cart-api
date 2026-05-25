@@ -11,5 +11,7 @@
     "outDir": "./dist",
     "baseUrl": "./",
     "types": ["node", "jest"],
+    "strict": true,
+    "strictPropertyInitialization": false
   }
 }

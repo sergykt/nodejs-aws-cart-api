@@ -7,6 +7,7 @@ import * as lambdaNodejs from 'aws-cdk-lib/aws-lambda-nodejs';
 import * as rds from 'aws-cdk-lib/aws-rds';
 import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
 import * as path from 'path';
+import { FRONTEND_URL } from '../constants';
 
 export class NestStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -67,9 +68,14 @@ export class NestStack extends cdk.Stack {
     const apiGateway = new apigateway.RestApi(this, 'NestServiceApiGateway', {
       restApiName: 'Nest Service',
       description: 'API for the Nest Service',
+      defaultCorsPreflightOptions: {
+        allowOrigins: [FRONTEND_URL],
+        allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+        allowHeaders: ['Content-Type', 'Authorization'],
+      },
     });
 
-    const projectRoot = path.join(__dirname, '../../../');
+    const projectRoot = path.resolve(__dirname, '..', '..', '..');
 
     // Create the Lambda function for NestJS
     const nestJsLambdaFunction = new lambdaNodejs.NodejsFunction(
@@ -77,7 +83,7 @@ export class NestStack extends cdk.Stack {
       'NestJsLambdaFunction',
       {
         runtime: lambda.Runtime.NODEJS_20_X,
-        entry: path.join(projectRoot, 'src/handler.ts'),
+        entry: path.join(projectRoot, 'dist', 'src', 'handler.js'),
         projectRoot,
         handler: 'handler',
         bundling: {
