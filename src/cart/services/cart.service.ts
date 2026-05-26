@@ -19,8 +19,8 @@ export class CartService {
       id: cart.id,
       user_id: cart.userId,
       status: cart.status,
-      created_at: Number(cart.createdAt),
-      updated_at: Number(cart.updatedAt),
+      created_at: cart.createdAt,
+      updated_at: cart.updatedAt,
       items: items.map((item) => ({
         count: item.count,
         product: {
@@ -50,12 +50,8 @@ export class CartService {
   }
 
   async createByUserId(user_id: string): Promise<Cart> {
-    const timestamp = Date.now();
-
     const userCart = this.cartRepository.create({
       userId: user_id,
-      createdAt: timestamp,
-      updatedAt: timestamp,
       status: CartStatuses.OPEN,
     });
 
@@ -74,55 +70,66 @@ export class CartService {
     return this.createByUserId(userId);
   }
 
+  private async touchCart(cart: Cart): Promise<void> {
+    await this.cartRepository.update({ id: cart.id }, { status: cart.status });
+  }
+
   async updateByUserId(userId: string, payload: PutCartPayload): Promise<Cart> {
     const userCart = await this.findOrCreateByUserId(userId);
 
+    const { id: cartId } = userCart;
+    const { product, count } = payload;
+
     const existingItem = await this.cartItemRepository.findOne({
-      where: {
-        cartId: userCart.id,
-        productId: payload.product.id,
-      },
+      where: { cartId, productId: product.id },
     });
 
-    if (payload.count === 0) {
+    let isChanged = false;
+
+    if (count === 0) {
       if (existingItem) {
-        await this.cartItemRepository.delete({
-          cartId: userCart.id,
-          productId: payload.product.id,
-        });
+        await this.cartItemRepository.delete({ cartId, productId: product.id });
+        isChanged = true;
       }
     } else if (!existingItem) {
       await this.cartItemRepository.save(
         this.cartItemRepository.create({
-          cartId: userCart.id,
-          productId: payload.product.id,
-          title: payload.product.title,
-          description: payload.product.description,
-          price: payload.product.price,
-          count: payload.count,
+          cartId,
+          productId: product.id,
+          title: product.title,
+          description: product.description,
+          price: product.price,
+          count,
         }),
       );
+      isChanged = true;
     } else {
-      await this.cartItemRepository.update(
-        {
-          cartId: userCart.id,
-          productId: payload.product.id,
-        },
-        {
-          title: payload.product.title,
-          description: payload.product.description,
-          price: payload.product.price,
-          count: payload.count,
-        },
-      );
+      const isSame =
+        existingItem.title === product.title &&
+        existingItem.description === product.description &&
+        existingItem.price === product.price &&
+        existingItem.count === count;
+
+      if (!isSame) {
+        await this.cartItemRepository.update(
+          { cartId, productId: product.id },
+          {
+            title: product.title,
+            description: product.description,
+            price: product.price,
+            count,
+          },
+        );
+        isChanged = true;
+      }
     }
 
-    await this.cartRepository.update(
-      { id: userCart.id },
-      { updatedAt: Date.now() },
-    );
+    if (isChanged) {
+      await this.touchCart(userCart);
+      return this.findOrCreateByUserId(userId);
+    }
 
-    return this.findOrCreateByUserId(userId);
+    return userCart;
   }
 
   async removeByUserId(userId: string): Promise<void> {
@@ -134,7 +141,6 @@ export class CartService {
       return;
     }
 
-    await this.cartItemRepository.delete({ cartId: cart.id });
     await this.cartRepository.delete({ id: cart.id });
   }
 }

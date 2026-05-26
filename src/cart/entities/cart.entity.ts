@@ -1,4 +1,11 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  CreateDateColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 import { CartStatuses } from '../models';
 import { CartItemEntity } from './cart-item.entity';
 
@@ -17,11 +24,11 @@ export class CartEntity {
   })
   status: CartStatuses;
 
-  @Column({ name: 'created_at', type: 'bigint', nullable: false })
-  createdAt: number;
+  @CreateDateColumn({ name: 'created_at', type: 'timestamp', nullable: false })
+  createdAt: Date;
 
-  @Column({ name: 'updated_at', type: 'bigint', nullable: false })
-  updatedAt: number;
+  @UpdateDateColumn({ name: 'updated_at', type: 'timestamp', nullable: false })
+  updatedAt: Date;
 
   @OneToMany(() => CartItemEntity, (item) => item.cart)
   items: CartItemEntity[];

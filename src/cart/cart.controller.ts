@@ -15,7 +15,7 @@ import { Order, OrderService } from '../order';
 import { AppRequest, getUserIdFromRequest } from '../shared';
 import { calculateCartTotal } from './models-rules';
 import { CartService } from './services';
-import { CartItem } from './models';
+import { Cart } from './models';
 import { CreateOrderDto, PutCartPayload } from 'src/order/type';
 
 @Controller('api/profile/cart')
@@ -28,12 +28,12 @@ export class CartController {
   // @UseGuards(JwtAuthGuard)
   @UseGuards(BasicAuthGuard)
   @Get()
-  async findUserCart(@Req() req: AppRequest): Promise<CartItem[]> {
+  async findUserCart(@Req() req: AppRequest): Promise<Cart> {
     const cart = await this.cartService.findOrCreateByUserId(
       getUserIdFromRequest(req),
     );
 
-    return cart.items;
+    return cart;
   }
 
   // @UseGuards(JwtAuthGuard)
@@ -42,14 +42,14 @@ export class CartController {
   async updateUserCart(
     @Req() req: AppRequest,
     @Body() body: PutCartPayload,
-  ): Promise<CartItem[]> {
+  ): Promise<Cart> {
     // TODO: validate body payload...
     const cart = await this.cartService.updateByUserId(
       getUserIdFromRequest(req),
       body,
     );
 
-    return cart.items;
+    return cart;
   }
 
   // @UseGuards(JwtAuthGuard)
