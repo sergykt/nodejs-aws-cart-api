@@ -10,6 +10,8 @@
     "sourceMap": true,
     "outDir": "./dist",
     "baseUrl": "./",
-    "incremental": true
+    "types": ["node", "jest"],
+    "strict": true,
+    "strictPropertyInitialization": false
   }
 }

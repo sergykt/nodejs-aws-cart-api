@@ -40,7 +40,7 @@ export class AppController {
   @HttpCode(200)
   @Post('api/auth/login')
   async login(@Request() req: AppRequest) {
-    const token = this.authService.login(req.user, 'basic');
+    const token = this.authService.login(req.user!, 'basic');
 
     return token;
   }
